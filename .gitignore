@@ -1,0 +1,46 @@
+gitignore-django
+
+# Python 缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境
+venv/
+env/
+.venv/
+
+# Django 迁移文件缓存（可以忽略 pyc 文件，但不要忽略迁移 py 文件）
+*.pyc
+*.pyo
+
+# 数据库文件（如果用 sqlite）
+*.sqlite3
+
+# 媒体文件和上传内容（可选，根据需求）
+/media/
+
+# 静态文件（通常由 collectstatic 生成）
+/staticfiles/
+/static/
+
+# VSCode / PyCharm 等编辑器配置
+.vscode/
+.idea/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 环境变量文件
+.env
+*.env
+
+# 日志文件
+*.log
+
+# 单元测试/覆盖率文件
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
