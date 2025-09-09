@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>大熊课堂校园管理系统</title>
+    {% load static %}
+    <link rel="stylesheet" href="{%static "css/base.css"%}" />
+    <link rel="stylesheet" href="{%static "css/index.css"%}" />
+    <link rel="stylesheet" href="{%static "css/iconfont.css"%}" />
+    <link rel="stylesheet" href="{%static% "css/sweetalert2.css"}" />
+    <script src="{%static "js/sweetalert2.js" %}"></script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="left">
+        <div class="head">
+          <a href="/students/">
+            <h2>学生管理系统</h2>
+          </a>
+        </div>
+        <div class="profile">欢迎 [ admin ] 管理员</div>
+        <div class="content">
+          <ul>
+            <li class="active">
+              <span class="iconfont icon-fangzi"></span>
+              <a href="/grades/" class="nav-link">班级管理</a>
+            </li>
+            <li class="active">
+              <span class="iconfont icon-kapian"></span>
+              <a href="/teachers/">老师管理</a>
+            </li>
+
+            <li>
+              <span class="iconfont icon-ren"></span>
+              <a href="/students/">学生管理</a>
+            </li>
+            <li>
+              <span class="iconfont icon-shuben"></span>
+              <a href="/scores/">成绩管理</a>
+            </li>
+
+            <li>
+              <span class="iconfont icon-bianji"></span>
+              <a href="/change_password/">修改密码</a>
+            </li>
+            <li>
+              <span class="iconfont icon-shangchuan"></span>
+              <a href="/logout/">退出登录</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+{%block content%}
+
+{%endblock%}
+      </div>
+    </div>
+  </body>
+</html>
