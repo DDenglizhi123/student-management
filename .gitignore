@@ -9,7 +9,7 @@ __pycache__/
 venv/
 env/
 .venv/
-
+/StudentManagement/
 # Django 迁移文件缓存（可以忽略 pyc 文件，但不要忽略迁移 py 文件）
 *.pyc
 *.pyo
@@ -19,6 +19,7 @@ env/
 
 # 媒体文件和上传内容（可选，根据需求）
 /media/
+/StudentManagement/
 
 # 静态文件（通常由 collectstatic 生成）
 /staticfiles/
