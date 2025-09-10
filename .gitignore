@@ -33,8 +33,6 @@ env/
 .DS_Store
 Thumbs.db
 
-#django 配置文件
-settings.py
 
 # 环境变量文件
 .env
@@ -48,3 +46,4 @@ htmlcov/
 .coverage
 .tox/
 .pytest_cache/
+config/settings.py
