@@ -34,7 +34,7 @@ env/
 Thumbs.db
 
 #django 配置文件
-setting.py
+settings.py
 
 # 环境变量文件
 .env
