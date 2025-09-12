@@ -6,7 +6,7 @@ class StudentForm(forms.ModelForm):
 
     class Meta:
         model = Students
-        field = [
+        fields = [
             "student_number",
             "student_name",
             "gender",

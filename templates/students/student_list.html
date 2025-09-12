@@ -1,0 +1,78 @@
+{%extends 'base.html'%} {%block content%}
+
+<div class="right">
+  <div class="top">
+    <div class="tool">
+      <div class="class-info">
+        <form action="/students/">
+          <span>班级:</span>
+          <select name="grade">
+            <option value="" selected>请选择班级</option>
+            {% for student in students%}
+            <option value="{{student.grade.grade.pk}}">{{student.grade.grade_name}}</option>
+            {%endfor%}
+          </select>
+          <input type="text" name="search" />
+          <input type="submit" value="搜索" />
+        </form>
+      </div>
+      <div class="actions">
+        <button type="button" class="add" id="add">新增</button>
+        <button type="button" class="del" id="del-all">批量删除</button>
+        <button type="button" class="import" id="import">导入</button>
+        <button type="button" class="export" id="export">导出</button>
+      </div>
+    </div>
+  </div>
+  <div class="bottom">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all" /></th>
+          <th>姓名</th>
+          <th>班级</th>
+          <th>学号</th>
+          <th>性别</th>
+          <th>生日</th>
+          <th>联系电话</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stu in students%}
+        <tr>
+          <td><input type="checkbox" name="student_ids" value="48" /></td>
+          <td>{{student.student_name}}</td>
+          <td>{{student.grade.grade_number}}</td>
+          <td>{{student.student_number}}</td>
+          <td>{{student.gender}}</td>
+          <td>{{student.birthday}}</td>
+          <td>{{student.contact_number}}</td>
+          <td>
+            <a href="#" class="btn btn-primary btn-sm edit">编辑</a>
+            <a href="#" class="btn btn-danger btn-sm del">删除</a>
+          </td>
+        </tr>
+        {%endfor%}
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span class="step-links">
+        <span class="step-links">
+          <span class="current"> 1 / 2 </span>
+          <a href="http://127.0.0.1:8000/students/?page=2">下一页</a>
+          <a href="http://127.0.0.1:8000/students/?page=2">尾页 »</a>
+        </span>
+      </span>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById("add").addEventListener("click", function () {
+    Swal.fire({
+      position: "top-end",
+      html: `<iframe src='{%url 'student_create'%}' width=100% height='800px' frameborder='0'></iframe>`,
+    });
+  });
+</script>
+{% endblock %}
