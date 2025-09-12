@@ -7,9 +7,9 @@
         <form action="/students/">
           <span>班级:</span>
           <select name="grade">
-            <option value="" selected>请选择班级</option>
-            {% for student in students%}
-            <option value="{{student.grade.grade.pk}}">{{student.grade.grade_name}}</option>
+            <option value=" ">请选择班级</option>
+            {% for grade in grades%}
+            <option value="{{grade.pk}}">{{grade.grade_name}}</option>
             {%endfor%}
           </select>
           <input type="text" name="search" />
