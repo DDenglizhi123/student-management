@@ -42,12 +42,12 @@
         {% for stu in students%}
         <tr>
           <td><input type="checkbox" name="student_ids" value="48" /></td>
-          <td>{{student.student_name}}</td>
-          <td>{{student.grade.grade_number}}</td>
-          <td>{{student.student_number}}</td>
-          <td>{{student.gender}}</td>
-          <td>{{student.birthday}}</td>
-          <td>{{student.contact_number}}</td>
+          <td>{{stu.student_name}}</td>
+          <td>{{stu.grade.grade_number}}</td>
+          <td>{{stu.student_number}}</td>
+          <td>{{stu.gender}}</td>
+          <td>{{stu.birthday}}</td>
+          <td>{{stu.contact_number}}</td>
           <td>
             <a href="#" class="btn btn-primary btn-sm edit">编辑</a>
             <a href="#" class="btn btn-danger btn-sm del">删除</a>
@@ -72,6 +72,8 @@
     Swal.fire({
       position: "top-end",
       html: `<iframe src='{%url 'student_create'%}' width=100% height='800px' frameborder='0'></iframe>`,
+      width: 600,
+      showConfirmButton: false,
     });
   });
 </script>

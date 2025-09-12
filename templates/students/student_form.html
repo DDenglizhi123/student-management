@@ -1,5 +1,6 @@
 {%load static%} 
 <link rel="stylesheet" href="{%static "css/form.css"%}">
+<link rel="stylesheet" href="{%static "css/sweetalert2.css"%}">
 
 <div class="container">
   {%if object %}
@@ -7,15 +8,15 @@
   {%else%} 
   <h1 style="text-align: center">添加学生信息 
   {%endif%}</h1>
-  <form method="post">
+  <form method="post" action="">
     {%csrf_token%} 
     {%for field in form%}
     <div class="form-group">
       <label for="{{field.id_for_label}}"> {{field.label}}:</label>
       {{field}} 
-      {%if field.help_text%}
+      {% comment %} {%if field.help_text%}
       <samll class="from-text text-muted">{{field.help_text}}</samll>
-      {%endif%}
+      {%endif%} {% endcomment %}
 
       <ul class="errors">
         {%for error in field.errors%}
@@ -26,7 +27,37 @@
     {%endfor%}
     <div class="handleButton">
       <button type="submit" id="saveButton">保存</button>
-      <button type="submit" id="cancelButton">删除</button>
+      <button type="submit" id="cancelButton" onlick="window.parent.Swal.close()">删除</button>
     </div>
   </form>
 </div>
+<script src="{%static 'js/sweetalert2.js'%}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const form = document.querySelector('form');
+    const url = "{%url 'student_create'%}";
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      let formData = new FormData(form)
+      fetch(url,{
+        method:'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With':'XMLHttpRequest',
+          'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+        }
+      }).then(response => response.json())
+      .then(data => {
+        if (data.status === 'success'){
+          Swal.fire({
+            icon: 'success', 
+            title: data.messages,
+            text: '数据已提交'
+          })
+        }
+        console.log(data)
+      })
+    })
+  })
+
+</script>

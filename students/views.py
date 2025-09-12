@@ -4,6 +4,7 @@ from django.views.generic import ListView, CreateView
 from .models import Students
 from grades.models import Grade
 from .forms import StudentForm
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -24,3 +25,7 @@ class StudentCreateView(CreateView):
     model = Students
     template_name = "students/student_form.html"
     form_class = StudentForm
+
+    def form_valid(self, form):
+
+        return JsonResponse({"status": "success", "messages": "操作成功"})
