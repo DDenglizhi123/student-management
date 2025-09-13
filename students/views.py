@@ -10,7 +10,7 @@ from django.http import JsonResponse
 # Create your views here.
 class StudentListView(ListView):
     model = Students
-    template_name = "students/student_list.html"
+    template_name = "students/students_list.html"
     context_object_name = "students"
     paginate_by = 10
 

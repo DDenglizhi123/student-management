@@ -17,12 +17,11 @@ class StudentForm(forms.ModelForm):
         fields = [
             "student_number",
             "student_name",
+            "grade",
             "gender",
-            "student_number",
             "birthday",
             "contact_number",
             "address",
-            "grade",
         ]
         widgets = {
             "birthday": DateInput(),

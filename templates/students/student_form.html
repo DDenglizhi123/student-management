@@ -1,20 +1,17 @@
-{%load static%} 
-<link rel="stylesheet" href="{%static "css/form.css"%}">
-<link rel="stylesheet" href="{%static "css/sweetalert2.css"%}">
+{%load static%} <link rel="stylesheet" href="{%static "css/form.css"%}"> <link rel="stylesheet" href="{%static
+"css/sweetalert2.css"%}">
 
 <div class="container">
-  {%if object %}
-  <h1 style="text-align: center">编辑学生信息 
-  {%else%} 
-  <h1 style="text-align: center">添加学生信息 
-  {%endif%}</h1>
-  <form method="post" action="">
-    {%csrf_token%} 
-    {%for field in form%}
+  {%if student.pk %}
+  <h2 style="text-align: center">编辑学生信息</h2>
+  {%else%}
+  <h2 style="text-align: center">添加学生信息</h2>
+  {%endif%}
+  <form method="post">
+    {%csrf_token%} {%for field in form%}
     <div class="form-group">
       <label for="{{field.id_for_label}}"> {{field.label}}:</label>
-      {{field}} 
-      {% comment %} {%if field.help_text%}
+      {{field}} {% comment %} {%if field.help_text%}
       <samll class="from-text text-muted">{{field.help_text}}</samll>
       {%endif%} {% endcomment %}
 
@@ -33,31 +30,31 @@
 </div>
 <script src="{%static 'js/sweetalert2.js'%}"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function(){
-    const form = document.querySelector('form');
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
     const url = "{%url 'student_create'%}";
-    form.addEventListener('submit', function(e){
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
-      let formData = new FormData(form)
-      fetch(url,{
-        method:'POST',
+      let formData = new FormData(form);
+      fetch(url, {
+        method: "POST",
         body: formData,
         headers: {
-          'X-Requested-With':'XMLHttpRequest',
-          'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
-        }
-      }).then(response => response.json())
-      .then(data => {
-        if (data.status === 'success'){
-          Swal.fire({
-            icon: 'success', 
-            title: data.messages,
-            text: '数据已提交'
-          })
-        }
-        console.log(data)
+          "X-Requested-With": "XMLHttpRequest",
+          "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+        },
       })
-    })
-  })
-
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === "success") {
+            Swal.fire({
+              icon: "success",
+              title: data.messages,
+              text: "数据已提交",
+            });
+          }
+          console.log(data);
+        });
+    });
+  });
 </script>
