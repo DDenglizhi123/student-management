@@ -12,7 +12,7 @@
     <div class="form-group">
       <label for="{{field.id_for_label}}"> {{field.label}}:</label>
       {{field}} {% comment %} {%if field.help_text%}
-      <samll class="from-text text-muted">{{field.help_text}}</samll>
+      <small class="from-text text-muted">{{field.help_text}}</small>
       {%endif%} {% endcomment %}
 
       <ul class="errors">
@@ -24,11 +24,12 @@
     {%endfor%}
     <div class="handleButton">
       <button type="submit" id="saveButton">保存</button>
+      <!-- 调用父模板中sweetalert2的JS -->
       <button type="submit" id="cancelButton" onlick="window.parent.Swal.close()">删除</button>
     </div>
   </form>
 </div>
-<script src="{%static 'js/sweetalert2.js'%}"></script>
+<script src="{% static 'js/sweetalert2.js' %}"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("form");
@@ -52,8 +53,28 @@
               title: data.messages,
               text: "数据已提交",
             });
+          } else {
+            // 解析JSON
+            const errors = JSON.parse(data.messages);
+            // 构造错误信息的文本
+            let errorMessage = "";
+
+            for (const field in errors) {
+              // 遍历errors内每个字段(field)对应的错误信息
+              if (errors.hasOwnProperty(field)) {
+                // 如果该字段有对应的错误信息
+                errors[field].forEach((error) => {
+                  errorMessage += `<li style="color:red;text-align:left;margin-left:100px;">${error.message}</li>`;
+                });
+              }
+            }
+            Swal.fire({
+              icon: "error",
+              title: "提交错误",
+              html: errorMessage,
+              confirmButtonText: "关闭",
+            });
           }
-          console.log(data);
         });
     });
   });

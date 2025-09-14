@@ -11,7 +11,9 @@ class Students(models.Model):
     genderFemale = "Female"
     GENDER_CHOISES = [("M", "Male"), ("F", "Female")]
 
-    gender = models.CharField(max_length=2, choices=GENDER_CHOISES, default=genderMale)
+    gender = models.CharField(
+        max_length=2, choices=GENDER_CHOISES, default=genderMale, verbose_name="性别"
+    )
     birthday = models.DateField(
         help_text="Formate : yyyy-mm-dd", verbose_name="出生日期"
     )
@@ -22,7 +24,10 @@ class Students(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # 班级表一对多关联
     grade = models.ForeignKey(
-        Grade, on_delete=models.CASCADE, related_name="students_grade"
+        Grade,
+        on_delete=models.CASCADE,
+        related_name="students_grade",
+        verbose_name="年级",
     )
 
     def __str__(self):

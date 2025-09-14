@@ -27,5 +27,8 @@ class StudentCreateView(CreateView):
     form_class = StudentForm
 
     def form_valid(self, form):
-
-        return JsonResponse({"status": "success", "messages": "操作成功"})
+        return JsonResponse({"status": "success", "messages": "操作成功"}, status=200)
+    
+    def form_invalid(self, form):
+        errors = form.errors.as_json()
+        return JsonResponse({"status": "error", "messages": errors},status=400)
