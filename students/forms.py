@@ -9,18 +9,18 @@ from grades.models import Grade
 class StudentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields.get('grade').queryset = Grade.objects.all().order_by('grade_number')
+        self.fields.get('grade').queryset = Grade.objects.all().order_by('grade_number') # pyright: ignore[reportOptionalMemberAccess, reportAttributeAccessIssue]
 
     def clean_student_name(self):
         student_name = self.cleaned_data.get('student_name')
-        if len(student_name) < 2 or len(student_name) > 50:
+        if len(student_name) < 2 or len(student_name) > 50: # type: ignore
             raise ValidationError('请填写正确的学生姓名')
         return student_name
     
 
     def clean_student_number(self):
         student_number = self.cleaned_data.get('student_number')
-        if len(student_number) != 19:
+        if len(student_number) != 19: # type: ignore
             raise ValidationError('学号长度应为19位。')
         return student_number
     
@@ -34,7 +34,7 @@ class StudentForm(forms.ModelForm):
     
     def clean_contact_number(self):
         contact_number = self.cleaned_data.get('contact_number')
-        if len(contact_number) != 11:
+        if len(contact_number) != 11: # type: ignore
             raise ValidationError('联系电话应为11位。')
         return contact_number
 
