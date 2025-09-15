@@ -1,7 +1,7 @@
 from typing import Any
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView
-from .models import Students
+from .models import Student
 from grades.models import Grade
 from .forms import StudentForm
 from django.http import JsonResponse
@@ -9,7 +9,7 @@ from django.http import JsonResponse
 
 # Create your views here.
 class StudentListView(ListView):
-    model = Students
+    model = Student
     template_name = "students/students_list.html"
     context_object_name = "students"
     paginate_by = 10
@@ -22,7 +22,7 @@ class StudentListView(ListView):
 
 
 class StudentCreateView(CreateView):
-    model = Students
+    model = Student
     template_name = "students/student_form.html"
     form_class = StudentForm
 
