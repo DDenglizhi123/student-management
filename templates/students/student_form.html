@@ -1,27 +1,27 @@
-{%load static%} <link rel="stylesheet" href="{%static "css/form.css"%}"> <link rel="stylesheet" href="{%static
-"css/sweetalert2.css"%}">
+{%load static%} <link rel="stylesheet" href="{% static 'css/form.css' %}" />
+<link rel="stylesheet" href="{% static 'css/sweetalert2.css' %}" />
 
 <div class="container">
-  {%if student.pk %}
+  {% if student.pk %}
   <h2 style="text-align: center">编辑学生信息</h2>
-  {%else%}
+  {% else %}
   <h2 style="text-align: center">添加学生信息</h2>
-  {%endif%}
+  {% endif %}
   <form method="post">
-    {%csrf_token%} {%for field in form%}
+    {% csrf_token %} {% for field in form %}
     <div class="form-group">
       <label for="{{field.id_for_label}}"> {{field.label}}:</label>
-      {{field}} {% comment %} {%if field.help_text%}
+      {{field}} {% comment %} {% if field.help_text %}
       <small class="from-text text-muted">{{field.help_text}}</small>
-      {%endif%} {% endcomment %}
+      {% endif %} {% endcomment %}
 
       <ul class="errors">
-        {%for error in field.errors%}
+        {% for error in field.errors %}
         <li>{{error}}</li>
-        {%endfor%}
+        {% endfor %}
       </ul>
     </div>
-    {%endfor%}
+    {% endfor %}
     <div class="handleButton">
       <button type="submit" id="saveButton">保存</button>
       <!-- 调用父模板中sweetalert2的JS -->
@@ -33,7 +33,7 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("form");
-    const url = "{%url 'student_create'%}";
+    const url = "{% url 'student_create' %}";
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       let formData = new FormData(form);
@@ -52,6 +52,10 @@
               icon: "success",
               title: data.messages,
               text: "数据已提交",
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.parent.location.reload(); // 刷新父页面
+              }
             });
           } else {
             // 解析JSON
@@ -75,6 +79,14 @@
               confirmButtonText: "关闭",
             });
           }
+        })
+        .catch((error) => {
+          Swal.fire({
+            icon: "error",
+            title: "网络请求失败",
+            text: "无法连接到服务器. 请稍候再试.",
+            confirmButtonText: "关闭",
+          });
         });
     });
   });
