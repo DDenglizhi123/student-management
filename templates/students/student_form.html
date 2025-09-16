@@ -29,11 +29,23 @@
     </div>
   </form>
 </div>
+
+<!--根据按钮不同, form提交的地址不同-->
+{% if student.pk %}
+<script>
+  const actionUrl = "{% url 'student_update' student.pk%}";
+</script>
+{% else %}
+<script>
+  const actionUrl = "{% url 'student_create' %}";
+</script>
+{% endif %}
+
 <script src="{% static 'js/sweetalert2.js' %}"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const form = document.querySelector("form");
-    const url = "{% url 'student_create' %}";
+    const url = actionUrl;
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       let formData = new FormData(form);

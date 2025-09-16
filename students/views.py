@@ -1,11 +1,13 @@
 from typing import Any
 from django.shortcuts import render
-from django.views.generic import ListView, CreateView, UpdateView
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Student
 from grades.models import Grade
 from .forms import StudentForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 
 
 # Create your views here.
@@ -66,11 +68,41 @@ class StudentUpdateView(UpdateView):
         if 'student_name' or 'student_number' in form.changed_data:
             # 如果存在: 
             # 更新关联的user的username:
-            student.user.username = form.changed_data.get('student_name') + '_' + form.changed_data.get('student_number')  # type: ignore
+            student.user.username = form.cleaned_data.get('student_name') + '_' + form.cleaned_data.get('student_number')  # type: ignore
             # 更新关联的user的password:
-            student.user.password = form.changed_data.get('student_number')[-6:]  # type: ignore
+            student.user.password = make_password(form.cleaned_data.get('student_number')[-6:])  # type: ignore # 对密码进行加密 make_password()
             # 保存对user标中username和password的修改:
             student.user.save()
         # 保存对student模型的修改:
         student.save()
         return JsonResponse({"status": "success", "messages": "操作成功"}, status=200)
+
+
+
+class StudentDeleteView(DeleteView):
+    success_url = reverse_lazy('student_list')
+    model = Student
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        try:
+            self.object.delete()  # 删除关联的 User 对象
+            return JsonResponse({"status": "success", "messages": "删除成功"}, status=200)
+        except Exception as e:
+            return JsonResponse({"status": "error", "messages": "删除失败" + str(e)}, status=500)
+        
+class StudentBulkDeleteView(DeleteView):
+    model = Student
+    success_url = reverse_lazy('student_list')
+    
+    # 处理POST请求:
+    def post(self, request, *args, **kwargs):
+        
+        # 
+        student_ids = request.POST.getlist('student_ids[]')
+        try:
+            students = Student.objects.filter(id__in=student_ids)
+            for student in students:
+                student.delete()  # 删除关联的 User 对象
+            return JsonResponse({"status": "success", "messages": "批量删除成功"}, status=200)
+        except Exception as e:
+            return JsonResponse({"status": "error", "messages": "批量删除失败" + str(e)}, status=500)

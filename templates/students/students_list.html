@@ -12,23 +12,18 @@
 <option value="8">
 1年1班
 </option>
-
 <option value="6">
 1年2班
 </option>
-
 <option value="7">
 1年3班
 </option>
-
 <option value="9">
 1年4班
 </option>
-
 <option value="10">
 1年5班
 </option>
-
 </select>
 <span>姓名/学号:</span>
 <input type="text" name="search" value>
@@ -58,23 +53,23 @@
 <th>操作</th>
 </tr>
 </thead>
-<tbody>
-  {% for student in students %}
-  <tr>
-  <td><input type="checkbox" name="student_ids" value="{{student.pk}}"></td>
-    <td>{{student.student_name}}</td>
-    <td>{{student.grade.grade_name}}</td>
-    <td>{{student.student_number}}</td>
-    <td>{{student.gender}}</td>
-    <td>{{student.birthday}}</td>
-    <td>{{student.contact_number}}</td>
-    <td>
-      <a href="{% url 'student_update' student.pk %}" class="btn btn-primary btn-sm edit">编辑</a>
-      <a href="#" class="btn btn-danger btn-sm del">删除</a>
-    </td>
-  </tr>
-  {% endfor %}
-</tbody>
+  <tbody>
+    {% for student in students %}
+    <tr>
+      <td><input type="checkbox" name="student_ids" value="{{student.pk}}"></td>
+      <td>{{student.student_name}}</td>
+      <td>{{student.grade.grade_name}}</td>
+      <td>{{student.student_number}}</td>
+      <td>{{student.gender}}</td>
+      <td>{{student.birthday}}</td>
+      <td>{{student.contact_number}}</td>
+      <td>
+        <a href="{% url 'student_update' student.pk %}" class="btn btn-primary btn-sm edit">编辑</a>
+        <a href="{% url 'student_delete' student.pk %}" class="btn btn-danger btn-sm del">删除</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
 <div class="pagination">
@@ -96,6 +91,15 @@
 </div>
 
 <script>
+  // 选中所有学生:
+  document.getElementById("select-all").addEventListener("change",function(){
+    const checkboxes = document.querySelectorAll("input[name='student_ids']");
+    checkboxes.forEach( checkbox =>{
+      checkbox.checked = this.checked;
+    })
+  })
+
+  
   // 给新增按钮添加弹窗效果:
   // 处理新增按钮点击事件:
   document.getElementById("add").addEventListener("click", function () {
@@ -120,6 +124,71 @@
         showConfirmButton: false,
       });
     })
+  })
+
+  // 处理删除按钮点击事件:
+  document.querySelectorAll(".btn-danger").forEach( button =>{
+    button.addEventListener("click", function(e){
+      e.preventDefault();
+      const url = this.getAttribute("href");
+      Swal.fire({
+        title:'确认删除吗?',
+        icon:'warning',
+        showCancelButton:true,
+        confirmButtonText:'确认',
+        confirmButtonColor:'#d33',
+      }).then((result)=>{
+        if(result.isConfirmed){
+          fetch(url,{
+            method:'DELETE',
+            headers:{
+              'X-Requested-With':'XMLHttpRequest',
+              'X-CSRFToken':'{{csrf_token}}'
+            },
+          }).then(response => response.json())
+          .then(data => {
+            if (data.status === 'success'){
+              Swal.fire("Deleted!", data.messages, "success")
+              window.location.reload(); 
+            } else {
+              Swal.fire("Error!", data.messages, "error")
+            }
+          })
+        }
+      })
+    })
+  })
+  
+
+  // 处理批量删除按钮点击事件:
+  document.getElementById("del-all").addEventListener("click", function(){
+    // 获取所有被选中的学生:
+    const checkboxes = document.querySelectorAll('input[name="student_ids"]:checked');
+    // 如果没有选中任何学生, 则弹出提示:
+    if (checkboxes.length === 0){
+      Swal.fire("Error!", "请至少选择一个学生", "error")
+      return;
+    }
+
+    // 弹出确认删除的对话框:
+    Swal.fire({
+      title:'确认删除吗?',
+      icon:'warning',
+      showCancelButton:true,
+      confirmButtonText:'确认',
+      confirmButtonColor:'#d33',
+    }).then((result)=>{
+      if(result.isConfirmed){
+        // 获取所有被选中的学生的ID:
+        fetch("{% url 'student_bulk_delete' %}",
+          {
+            method:'POST',
+            headers: {
+              'X-Requested-With':'XMLHttpRequest',
+              'X-CSRFToken':'{{csrf_token}}',
+            },
+          }
+        )
   })
 </script>
 {% endblock %}
