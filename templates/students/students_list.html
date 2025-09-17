@@ -180,6 +180,10 @@
     }).then((result)=>{
       if(result.isConfirmed){
         // 获取所有被选中的学生的ID:
+        const formData = new FormData();
+        checkboxes.forEach((checkbox) =>{
+          formData.append('student_ids', checkbox.value);
+        })
         fetch("{% url 'student_bulk_delete' %}",
           {
             method:'POST',
@@ -187,8 +191,18 @@
               'X-Requested-With':'XMLHttpRequest',
               'X-CSRFToken':'{{csrf_token}}',
             },
+            body: formData,
           }
-        )
+        ).then(response => response.json()).then(data =>{
+          if (data.status === 'success'){
+              Swal.fire("Deleted!", data.messages, "success")
+              window.location.reload(); 
+            } else {
+              Swal.fire("Error!", data.messages, "error")
+            }
+        })
+      }
+    })
   })
 </script>
 {% endblock %}

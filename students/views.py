@@ -96,13 +96,15 @@ class StudentBulkDeleteView(DeleteView):
     
     # 处理POST请求:
     def post(self, request, *args, **kwargs):
-        
-        # 
-        student_ids = request.POST.getlist('student_ids[]')
+
+        # 获取被选中的学生ID列表:
+        student_ids = request.POST.getlist('student_ids')
+        if not student_ids:
+            return JsonResponse({"status": "error", "messages": "未选择任何学生"}, status=400)
+
+        self.object_list = self.get_queryset().filter(id__in=student_ids)
         try:
-            students = Student.objects.filter(id__in=student_ids)
-            for student in students:
-                student.delete()  # 删除关联的 User 对象
+            self.object_list.delete()
             return JsonResponse({"status": "success", "messages": "批量删除成功"}, status=200)
         except Exception as e:
             return JsonResponse({"status": "error", "messages": "批量删除失败" + str(e)}, status=500)
