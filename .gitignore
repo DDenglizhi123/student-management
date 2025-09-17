@@ -47,3 +47,4 @@ htmlcov/
 .tox/
 .pytest_cache/
 config/settings.py
+config/settings.py
