@@ -204,5 +204,51 @@
       }
     })
   })
+  document.getElementById('import').addEventListener('click', function(){
+    Swal.fire({
+      title:'upload student infor excel',
+      input:'file',
+      inputAttributes:{
+        'accept':'.xlsx',
+        'aria-lable':'Upload your Excel file',
+
+      },
+      showCancelButton:true,
+      confirmButtonText:'Upload',
+      showLoaderOnConfirm:true,
+      preConfirm:(file) => {
+        //处理文件上传的逻辑, 例如使用FormData 和 fetch API 上传文件
+        const formData = new FormData();
+        formData.append('excel_file',file);
+        return fetch('{% url "upload_student"%}',{
+          method:'POST',
+          headers:{
+            'X-CSRFToken':'{{ csrf_token }}',
+          },
+          body:formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+          if(data.status ==='error'){
+            throw new Error(data.messages);
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          Swal.showValidationMessage(`${error.messages || error}`);
+        })
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if(result.isConfirmed){
+        Swal.fire({
+          title:"Uploaded!",
+          text:"上传成功",
+        }).then(()=>{
+          window.location.reload();
+        });
+      }
+    })
+    })
 </script>
 {% endblock %}
