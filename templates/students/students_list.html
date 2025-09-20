@@ -8,22 +8,11 @@
 <span>班级: </span>
 <select name="grade">
 <option value="" selected>请选择班级</option>
-
-<option value="8">
-1年1班
-</option>
-<option value="6">
-1年2班
-</option>
-<option value="7">
-1年3班
-</option>
-<option value="9">
-1年4班
-</option>
-<option value="10">
-1年5班
-</option>
+{% for grade in grades %}
+  <option value="{{grade.pk}}">
+    {{grade.grade_name}}
+  </option>
+{% endfor %}
 </select>
 <span>姓名/学号:</span>
 <input type="text" name="search" value>
@@ -249,6 +238,12 @@
         });
       }
     })
+    })
+
+    //导出excel
+    document.getElementById('export').addEventListener('click', function(){
+      //检查是否选择啦班级
+      const select = document.querySelector('select[name="grade"]');
     })
 </script>
 {% endblock %}

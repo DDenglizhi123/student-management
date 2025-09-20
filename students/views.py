@@ -23,7 +23,8 @@ class StudentListView(ListView):
     # 复写父类, 获取Grade的字段以供前端使用
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["grades"] = Grade.objects.all()[:10]
+        context["grades"] = Grade.objects.all().order_by('grade_number')
+        context['current_grade']=self.request.GET.get('grade','')
         return context
 
 
@@ -219,3 +220,7 @@ def upload_student(request):
                     'status':'success',
                     'messages':'上传成功'
                 },status=200)
+    
+    
+def export_excel(request):
+    return 1 + 1
