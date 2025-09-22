@@ -229,7 +229,7 @@ def upload_student(request):
     
     
 def export_excel(request):
-    if request == "POST":
+    if request.method == "POST":
         data = json.loads(request.body)
         grade_id = data.get('grade')
         # 判断grade_id是否存在
@@ -252,7 +252,7 @@ def export_excel(request):
                 'messages':'该班级没有学生信息'
             },status=404)
         wb = openpyxl.Workbook()
-        ws = wb.active
+        ws = wb.active if wb.active is not None else wb.create_sheet(title="Sheet1")
         # 设置表头
         columns = [
             '班级',
