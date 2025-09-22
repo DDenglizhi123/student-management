@@ -1,4 +1,6 @@
-{%extends 'base.html'%} {%block content%}
+{%extends 'base.html'%}
+{% load url_utils %}
+{%block content%}
 
 <div class="right">
 <div class="top">
@@ -9,7 +11,7 @@
 <select name="grade">
   <option value="" selected>请选择班级</option>
   {% for grade in grades %}
-    <option value="{{grade.pk}}">
+    <option value="{{grade.pk}}" {% if grade.pk|stringformat:"s" == current_grade %} selected {% endif %}>
       {{grade.grade_name}}
     </option>
   {% endfor %}
@@ -62,18 +64,21 @@
 </table>
 
 <div class="pagination">
-<span class="step-links">
-<span class="step-links">
-
-<span class="current">
-1 / 2
-</span>
-
-<a href="http://127.0.0.1:8000/students/?page=2">下一页</a>
-<a href="http://127.0.0.1:8000/students/?page=2">尾页 »</a>
-
-</span>
-</span>
+  <span class="step-links">
+    <span class="step-links">
+      {% if page_obj.has_previous %}
+        <a href="?{% search_url request page=1 %}">&laquo; 首页</a>
+        <a href="?{% search_url request page=page_obj.previous_page_number %}">上一页 »</a>
+      {% endif %}
+      <span class="current">
+        第 {{ page_obj.number }} 页, 共 {{ page_obj.paginator.num_pages }} 页.
+      </span>
+      {% if page_obj.has_next %}
+        <a href="?{% search_url request page=page_obj.next_page_number %}">下一页 »</a>
+        <a href="?{% search_url request page=page_obj.paginator.num_pages %}">尾页 &raquo;</a>
+      {% endif %}
+    </span>
+  </span>
 </div>
 </div>
 </div>

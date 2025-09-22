@@ -1,9 +1,12 @@
 from pathlib import Path
 import datetime
 import json
+from django.db.models.query import QuerySet
 import openpyxl
 
+
 from io import BytesIO
+from django.db.models import Q
 from typing import Any
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -33,6 +36,18 @@ class StudentListView(ListView):
         context['current_grade']=self.request.GET.get('grade','')
         return context
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        grade_id = self.request.GET.get('grade') # 获取前端传递的grade参数
+        if grade_id:
+            queryset = queryset.filter(grade_id=grade_id)
+        keyword = self.request.GET.get('search') # 获取前端传递的search参数,search的内容可能为学生姓名或者学号
+        if keyword:
+            queryset = queryset.filter(
+                Q(student_name__icontains=keyword) | Q(student_number=keyword)
+            )
+        return queryset
+    
 
 class StudentCreateView(CreateView):
     model = Student
