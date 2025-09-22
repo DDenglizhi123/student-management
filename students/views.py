@@ -1,6 +1,9 @@
 from pathlib import Path
 import datetime
+import json
+import openpyxl
 
+from io import BytesIO
 from typing import Any
 from django.shortcuts import render
 from django.urls import reverse_lazy
@@ -8,7 +11,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from .models import Student
 from grades.models import Grade
 from .forms import StudentForm
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 
@@ -22,8 +25,11 @@ class StudentListView(ListView):
 
     # 复写父类, 获取Grade的字段以供前端使用
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        # get_context_data()方法返回一个字典, 包含传递给模板的上下文数据
         context = super().get_context_data(**kwargs)
+        # 获取所有班级, 并按grade_number排序
         context["grades"] = Grade.objects.all().order_by('grade_number')
+        # 获取当前选择的班级, 传递给前端
         context['current_grade']=self.request.GET.get('grade','')
         return context
 
@@ -223,4 +229,67 @@ def upload_student(request):
     
     
 def export_excel(request):
-    return 1 + 1
+    if request == "POST":
+        data = json.loads(request.body)
+        grade_id = data.get('grade')
+        # 判断grade_id是否存在
+        if not grade_id:
+            return JsonResponse({
+                'status':'error',
+                'messages':'班级参数缺失'
+            },status=400)
+        try:
+            grade = Grade.objects.get(id=grade_id)
+        except Grade.DoesNotExist:
+            return JsonResponse({
+                'status':'error',
+                'messages':'班级不存在'
+            },status=404)
+        student = Student.objects.filter(grade=grade)
+        if not student.exists():
+            return JsonResponse({
+                'status':'error',
+                'messages':'该班级没有学生信息'
+            },status=404)
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        # 设置表头
+        columns = [
+            '班级',
+            '姓名',
+            '学号',
+            '性别',
+            '出生日期',
+            '联系电话',
+            '家庭住址',
+        ]
+        ws.append(columns)
+        
+        # 逐行写入数据
+        for student in student:
+            if student.gender == 'M':
+                student.gender = '男'
+            else: student.gender = '女'
+            ws.append([
+                student.grade.grade_name,
+                student.student_name,
+                student.student_number,
+                student.gender,
+                student.birthday,
+                student.contact_number,
+                student.address,
+                ])
+        # 保存文件到本地
+        excel_file = BytesIO()
+        wb.save(excel_file)
+        wb.close()
+        
+        # 设置文件指针到开头
+        excel_file.seek(0)
+        
+        # 以附件形式返回文件
+        response = HttpResponse(excel_file.read(), contect_type= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        # 设置响应头, 指定文件名
+        response['Content-Disposition'] = f'attachment; filename={grade.grade_name}_学生信息.xlsx'
+        # 返回响应
+        return response
