@@ -1,0 +1,138 @@
+{% extends 'base.html'%} 
+{% load url_utils %}
+{% block content %}
+<div class="right">
+  <div class="top">
+    <div class="tool">
+      <div class="class-info">
+        <form method="get" action="{% url 'teacher_list' %}">
+          <span>班级:</span>
+          <select name="grade">
+            <option value="" selected>请选择班级</option>
+            {% for grade in grades %}
+                <option value="{{ grade.pk }}" {% if grade.pk|stringformat:"s" == current_grade %}selected{% endif %}>
+                  {{ grade.grade_name }}
+                </option>
+            {% endfor %}
+          </select>
+          <span>姓名/电话:</span>
+          <input type="text" name="search" />
+          <input type="submit" value="搜索" />
+          <a href="javascript:;">
+            <button type="button" class="add" id="add">新增</button>
+          </a>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="bottom">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all" /></th>
+          <th>班级</th>
+          <th>姓名</th>
+          <th>性别</th>
+          <th>手机号</th>
+          <th>生日</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in teachers %}
+        <tr>
+          <td><input type="checkbox" name="teacher_ids" value="{{t.id}}" /></td>
+          <td>{{t.grade.grade_name}}</td>
+          <td>{{t.teacher_name}}</td>
+          <td>{{t.get_gender_display }}</td>
+          <td>{{t.phone_number}}</td>
+          <td>{{t.birthday|date:"Y-m-d"}}</td>
+          <td>
+            <a href="{% url 'teacher_update' t.pk %}" class="btn btn-primary btn-sm edit">编辑</a>
+            <a href="{% url 'teacher_delete' t.pk %}" class="btn btn-danger btn-sm del">删除</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9">暂无数据</td>
+        </tr>
+        {% endfor%}
+      </tbody>
+    </table>
+    <div class="pagination">
+      <div>
+        <div>
+            <!-- <span>页码： {{ page_obj.paginator.num_pages  }}</span> -->
+            <span>第{{ page_obj.number }}页/共{{ page_obj.paginator.num_pages }}页</span>
+            {% if page_obj.has_previous %}
+                <a href="?{% search_url request page=1 %}">首页</a>
+                <a href="?{% search_url request page=page_obj.previous_page_number %}">上一页</a>
+            {% endif %}
+            
+            {% if page_obj.has_next %}
+                <a href="?{% search_url request page=page_obj.next_page_number %}">下一页</a>
+                <a href="?{% search_url request page=page_obj.paginator.num_pages %}">尾页</a>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  // 处理新增按钮点击事件:
+  document.getElementById("add").addEventListener("click", function () {
+    Swal.fire({
+      position: "top-end",
+      html: `<iframe src='{% url 'teacher_create' %}' width=100% height='800px framborder='0'></iframe>`,
+      width: 600,
+      showConfirmButton: false,
+    });
+  });
+  // 处理编辑按钮点击事件:
+  document.querySelectorAll(".edit").forEach((button) => {
+    button.addEventListener("click", function (e) {
+      e.preventDefault();
+      const url = this.getAttribute("href");
+      Swal.fire({
+        position: "top-end",
+        html: `<iframe src='${url}' width=100% height='800px' frameborder='0'></iframe>`,
+        width: 600,
+        // 取消iframe里的确认按钮
+        showConfirmButton: false,
+      });
+    });
+  });
+  // 处理删除按钮点击事件:
+  document.querySelectorAll(".btn-danger").forEach( button =>{
+    button.addEventListener("click", function(e){
+      e.preventDefault();
+      const url = this.getAttribute("href");
+      Swal.fire({
+        title:'确认删除吗?',
+        icon:'warning',
+        showCancelButton:true,
+        confirmButtonText:'确认',
+        confirmButtonColor:'#d33',
+      }).then((result)=>{
+        if(result.isConfirmed){
+          fetch(url,{
+            method:'DELETE',
+            headers:{
+              'X-Requested-With':'XMLHttpRequest',
+              'X-CSRFToken':'{{csrf_token}}'
+            },
+          }).then(response => response.json())
+          .then(data => {
+            if (data.status === 'success'){
+              Swal.fire("Deleted!", data.messages, "success")
+              window.location.reload(); 
+            } else {
+              Swal.fire("Error!", data.messages, "error")
+            }
+          })
+        }
+      })
+    })
+  })
+</script>
+{% endblock %}

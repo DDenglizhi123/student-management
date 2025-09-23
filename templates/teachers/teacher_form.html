@@ -2,15 +2,16 @@
 <link rel="stylesheet" href="{% static 'css/sweetalert2.css' %}" />
 
 <div class="container">
-  {% if student.pk %}
-  <h2 style="text-align: center">编辑学生信息</h2>
+  {% if teacher.pk %}
+  <h2 style="text-align: center">编辑老师信息</h2>
   {% else %}
-  <h2 style="text-align: center">添加学生信息</h2>
+  <h2 style="text-align: center">添加老师信息</h2>
   {% endif %}
+
   <form method="post">
     {% csrf_token %} {% for field in form %}
     <div class="form-group">
-      <label for="{{field.id_for_label}}"> {{field.label}}</label>
+      <label for="{{field.id_for_label}}">{{field.label}}</label>
       {{field}}
 
       <ul class="errors">
@@ -20,22 +21,20 @@
       </ul>
     </div>
     {% endfor %}
+
     <div class="handleButton">
       <button type="submit" id="saveButton">保存</button>
-      <!-- 调用父模板中sweetalert2的JS -->
-      <button type="submit" id="cancelButton" onlick="window.parent.Swal.close()">删除</button>
+      <button type="button" id="cancelButton">取消</button>
     </div>
   </form>
 </div>
-
-<!--根据按钮不同, form提交的地址不同-->
-{% if student.pk %}
+{% if teacher.pk %}
 <script>
-  const actionUrl = "{% url 'student_update' student.pk%}";
+  const actionUrl = "{% url 'teacher_update' teacher.pk%}";
 </script>
 {% else %}
 <script>
-  const actionUrl = "{% url 'student_create' %}";
+  const actionUrl = "{% url 'teacher_create' %}";
 </script>
 {% endif %}
 
@@ -60,32 +59,34 @@
           if (data.status === "success") {
             Swal.fire({
               icon: "success",
-              title: data.messages,
-              text: "数据已提交",
+              title: "Success",
+              text: data.messages,
+              showConfirmButton: false,
             }).then((result) => {
               if (result.isConfirmed) {
-                window.parent.location.reload(); // 刷新父页面
+                window.parent.Swal.close();
+                window.parent.location.reload();
               }
             });
           } else {
-            // 解析JSON
+            // 解析JSON中的错误信息:
             const errors = JSON.parse(data.messages);
-            // 构造错误信息的文本
-            let errorMessage = "";
+            let errorMessages = "";
 
             for (const field in errors) {
-              // 遍历errors内每个字段(field)对应的错误信息
+              // 遍历errors内每个字段对应的错误信息
               if (errors.hasOwnProperty(field)) {
-                // 如果该字段有对应的错误信息
+                // 如果字段存在, 则遍历该字段的错误信息数组
                 errors[field].forEach((error) => {
-                  errorMessage += `<li style="color:red;text-align:left;margin-left:100px;">${error.message}</li>`;
+                  errorMessages += `<li style="color:red;text-align:left;margin-left:100px;">${error.message}</li>`;
                 });
               }
             }
+            // 使用SweetAlert2显示错误信息
             Swal.fire({
               icon: "error",
               title: "提交错误",
-              html: errorMessage,
+              html: errorMessages,
               confirmButtonText: "关闭",
             });
           }
@@ -93,8 +94,8 @@
         .catch((error) => {
           Swal.fire({
             icon: "error",
-            title: "网络请求失败",
-            text: "无法连接到服务器. 请稍候再试.",
+            title: "提交失败",
+            text: "发生未知错误, 请稍后重试",
             confirmButtonText: "关闭",
           });
         });
