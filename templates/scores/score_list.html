@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load url_utils %}
+{% block content %}
+
+<div class="right">
+    <div class="top">
+        <div class="tool">
+            <div class="class-info">
+                <form method="get" action="{% url 'score_list' %}" class="search-form">
+                    <span>班级:</span>
+                    <select name="grade">
+                        <option value="" selected>请选择班级</option>
+                        {% for grade in grades %}
+                            <option value="{{ grade.pk }}" {% if grade.pk|stringformat:"s" == current_grade %}selected{% endif %}>
+                                {{ grade.grade_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <span>姓名/学号:</span>
+                    <input type="text" name="search">
+                    <input type="submit" value="搜索" id="search">
+                </form>
+            </div>
+            <div class="actions">
+                <button type="button" class="add" id="add">新增</button>
+                <button type="button" class="del" id="bulkDel">批量删除</button>
+                <button type="button" class="import" id="import">导入</button>
+                <button type="button" class="export" id="export">导出</button>
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        <table>
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="select-all"></th>
+                    <th>考试名称</th>
+                    <th>姓名</th>
+                    <th>班级</th>
+                    <th>学号</th>
+                    <th>语文</th>
+                    <th>数学</th>
+                    <th>英语</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for score in scores %}
+                <tr>
+                    <td><input type="checkbox" name="score_ids" value="{{ score.id }}"></td>
+                    <td>{{ score.title }}</td>
+                    <td>{{ score.student_name }}</td>
+                    <td>{{ score.grade.grade_name }}</td>
+                    <td>{{ score.student_number }}</td>
+                    <td>{{ score.chinese_score }}</td>
+                    <td>{{ score.math_score }}</td>
+                    <td>{{ score.english_score }}</td>
+                    <td>
+                        <a href="{% url 'score_detail' score.pk %}" class="text-detail"> 查看</a>
+                        <a href="{% url 'score_update' score.pk %}" class="edit">编辑</a>
+                        <a href="{% url 'score_delete' score.pk %}" class="btn-danger">删除</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">暂无学生信息</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            <div>
+                <div>
+                    <span>第{{ page_obj.number }}页/共{{ page_obj.paginator.num_pages }}页</span>
+                    {% if page_obj.has_previous %}
+                        <a href="?{% search_url request page=1 %}">首页</a>
+                        <a href="?{% search_url request page=page_obj.previous_page_number %}">上一页</a>
+                    {% endif %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?{% search_url request page=page_obj.next_page_number %}">下一页</a>
+                        <a href="?{% search_url request page=page_obj.paginator.num_pages %}">尾页</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% include 'scores/score_list_script.html' %}
+{% endblock %}
+
