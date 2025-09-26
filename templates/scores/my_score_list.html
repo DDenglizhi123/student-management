@@ -1,34 +1,9 @@
 {% extends 'base.html' %}
+<!-- {% load url_utils %} -->
 {% load url_utils %}
 {% block content %}
-
 <div class="right">
-    <div class="top">
-        <div class="tool">
-            <div class="class-info">
-                <form method="get" action="{% url 'score_list' %}" class="search-form">
-                    <span>班级:</span>
-                    <select name="grade">
-                        <option value="" selected>请选择班级</option>
-                        {% for grade in grades %}
-                            <option value="{{ grade.pk }}" {% if grade.pk|stringformat:"s" == current_grade %}selected{% endif %}>
-                                {{ grade.grade_name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <span>姓名/学号:</span>
-                    <input type="text" name="search">
-                    <input type="submit" value="搜索" id="search">
-                </form>
-            </div>
-            <div class="actions">
-                <button type="button" class="add" id="add">新增</button>
-                <button type="button" class="del" id="bulkDel">批量删除</button>
-                <button type="button" class="import" id="import">导入</button>
-                <button type="button" class="export" id="export">导出</button>
-            </div>
-        </div>
-    </div>
+    <h2 style="text-align: center; padding: 10px;"> {{ request.user.student.student_name }}  成绩列表</h2>
     <div class="bottom">
         <table>
             <thead>
@@ -57,8 +32,6 @@
                     <td>{{ score.english_score }}</td>
                     <td>
                         <a href="{% url 'score_detail' score.pk %}" class="text-detail"> 查看</a>
-                        <a href="{% url 'score_update' score.pk %}" class="edit">编辑</a>
-                        <a href="{% url 'score_delete' score.pk %}" class="btn-danger">删除</a>
                     </td>
                 </tr>
                 {% empty %}
@@ -89,5 +62,6 @@
 </div>
 
 {% include 'scores/score_list_script.html' %}
+
 {% endblock %}
 

@@ -1,0 +1,277 @@
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    setupFormHandlers();
+    setupActionButtonHandlers();
+  });
+
+  function setupFormHandlers() {
+    //处理表单提交
+    const searchForm = document.querySelector('.search-form');
+    searchForm.addEventListener('submit', function(event) {
+    //   event.preventDefault();
+      const formData = new FormData(searchForm);
+      
+    });
+    
+    // 全选
+    const selectAllCheckbox = document.getElementById('select-all');
+    selectAllCheckbox.addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('input[name="score_ids"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    });
+  }
+
+  function setupActionButtonHandlers() {
+
+    // 新增按钮
+    document.getElementById('add').addEventListener('click', function() {
+        showIframe("{% url 'score_create' %}");
+    });
+
+    // 批量删除
+    document.getElementById('bulkDel').addEventListener('click', function() {
+        handleBulkDelete();
+    });
+
+    // 导入
+    document.getElementById('import').addEventListener('click', function() {
+        handleFileImport();
+    });
+
+    // 导出
+    document.getElementById('export').addEventListener('click', function() {
+        handleExport();
+    });
+
+    // 绑定单个编辑和删除按钮的事件
+    document.querySelectorAll('.edit, .btn-danger').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault(); // 阻止默认行为
+            if (this.classList.contains('edit')) {
+                showIframe(this.href);
+            } else {
+                confirmDelete(this.href);
+            }
+        });
+    });
+}
+
+function showIframe(url) {
+    Swal.fire({
+        position: "top-end",
+        html: `<iframe src="${url}" style="width:100%;height:800px;border:none;"></iframe>`,
+        width: 600,
+        showConfirmButton: false
+    });
+}
+
+function confirmDelete(url) {
+    Swal.fire({
+        title: "确认删除?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "删除",
+        confirmButtonColor: "#d33"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            }).then(response => response.json())
+              .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire("Deleted!", data.messages, "success");
+                    window.location.reload(); // 刷新页面
+                } else {
+                    Swal.fire("Error!", data.messages, "error");
+                }
+            });
+        }
+    });
+}
+
+function handleBulkDelete() {
+    const checkboxes = document.querySelectorAll('input[name="score_ids"]:checked');
+
+    // 确认是否有选中，如果没有，则提示“请先选择要删除的学生信息”
+    if (checkboxes.length === 0) {
+        Swal.fire({
+            title: "错误",
+            text: "请先选择要删除的学生信息",
+            icon: "error",
+            confirmButtonText: "好的"
+        });
+        return; // 直接返回，不执行后面的代码
+    }
+
+    // 如果有选择中，确认是否删除，如果点击确认，则发送请求
+    Swal.fire({
+        title: "确认删除选中的数据?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "删除",
+        confirmButtonColor: "#d33",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 创建一个表单数据对象
+            const formData = new FormData();
+            // 遍历所有选中的复选框并添加到表单数据中
+            checkboxes.forEach((checkbox) => {
+                console.log(checkbox.value)
+                formData.append('score_ids', checkbox.value);
+            });
+            
+            // 发送 POST 请求到服务器以删除选中的学生信息
+            fetch('{% url "score_delete_multiple" %}', { // 替换为你的服务器端删除处理的 URL
+                method: 'POST',
+                headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': '{{ csrf_token }}',  // 获取 CSRF token，确保已经在模板中使用 {% csrf_token %}
+                    },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire("已删除!", "选中的学生信息已成功删除。", "success");
+                    // 可以在这里添加代码刷新页面或更新视图等
+                    window.location.reload()
+                } else {
+                    Swal.fire("错误", "删除过程中出现错误，请重试。", "error");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire("错误", "请求失败，请检查网络连接或联系管理员。", "error");
+            });
+        }
+    });
+
+}
+
+function handleFileImport() {
+    Swal.fire({
+          title: '上传学生成绩Excel',
+          input: 'file',
+          inputAttributes: {
+              'accept': '.xlsx',
+              'aria-label': 'Upload your Excel file'
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Upload',
+          showLoaderOnConfirm: true,
+          preConfirm: (file) => {
+              // 处理文件上传的逻辑，例如使用 FormData 和 fetch API 上传文件
+              const formData = new FormData();
+              formData.append('excel_file', file);
+
+              return fetch('{% url "upload_scores"%}', {
+                  method: 'POST',
+                  headers: {
+                      'X-CSRFToken':  "{{ csrf_token }}" // 确保添加 CSRF 令牌
+                  },
+                  body: formData,
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if (data.status === 'error') {
+                      throw new Error(data.messages); // 直接抛出错误，让 catch 块处理
+                  }
+              })
+              .catch(error => {
+                  console.log(error);
+                  Swal.showValidationMessage(`${error.messages || error }`);
+              });
+          },
+          allowOutsideClick: () => !Swal.isLoading()
+      }).then((result) => {
+          if (result.isConfirmed) {
+              Swal.fire({
+                  title: 'Uploaded!',
+                  text: '上传成功.'
+              })
+              window.location.reload();
+          }
+      });
+}
+
+function handleExport() {
+    var select = document.querySelector('select[name="grade"]');
+    var value = select.value;
+    var gradeText = select.options[select.selectedIndex].text;  // 获取选中的文本
+    if (!value) {
+        Swal.fire({
+            title: '错误!',
+            text: '请选择一个班级!',
+            icon: 'error',
+            confirmButtonText: '确定'
+        });
+        return ;
+    }
+    // 提交请求，导出excel
+    Swal.fire({
+        title: '确认',
+        text: '导出【' + gradeText + '】成绩信息',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // 用户点击确认按钮，
+            fetch('{% url "export_scores" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }, 
+                body: JSON.stringify({grade: value})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    response.json().then(result => {
+                        Swal.fire({
+                            title: '下载失败',
+                            text: '服务器错误: ' + result.messages,
+                            icon: 'error',
+                            confirmButtonText: '关闭'
+                        });
+                    });
+                    throw new Error('网络或服务器错误');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download =  gradeText + '考试成绩.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                // 清理并移除元素
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('下载失败', error);
+                Swal.fire({
+                    title: '错误',
+                    text: '下载出现问题，请稍后再试。',
+                    icon: 'error',
+                    confirmButtonText: '关闭'
+                });
+            });
+
+        }
+    });
+}
+
+
+
+</script>
