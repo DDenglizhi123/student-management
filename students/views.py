@@ -17,17 +17,26 @@ from .forms import StudentForm
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from utils.permissions import RoleRequiredMixin
 
 
 # Create your views here.
-class StudentListView(ListView):
+class BaseStudentView(RoleRequiredMixin):
+    
     model = Student
-    template_name = "students/students_list.html"
     context_object_name = "students"
+    allowed_roles = ['admin','teacher'] # 允许访问的角色列表
+    form_class = StudentForm
+    success_url = reverse_lazy('student_list')
+
+class StudentListView(BaseStudentView,ListView):
+    
+    template_name = "students/students_list.html"
     paginate_by = 10
 
     # 复写父类, 获取Grade的字段以供前端使用
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        
         # get_context_data()方法返回一个字典, 包含传递给模板的上下文数据
         context = super().get_context_data(**kwargs)
         # 获取所有班级, 并按grade_number排序
@@ -37,6 +46,7 @@ class StudentListView(ListView):
         return context
 
     def get_queryset(self):
+        
         queryset = super().get_queryset()
         grade_id = self.request.GET.get('grade') # 获取前端传递的grade参数
         if grade_id:
@@ -49,10 +59,10 @@ class StudentListView(ListView):
         return queryset
     
 
-class StudentCreateView(CreateView):
-    model = Student
+class StudentCreateView(BaseStudentView,CreateView):
+    
     template_name = "students/student_form.html"
-    form_class = StudentForm
+    
     # 当前端form.html提交数据后验证通过后
     def form_valid(self, form):
         # 接收前端数据:
@@ -81,10 +91,10 @@ class StudentCreateView(CreateView):
         errors = form.errors.as_json()
         return JsonResponse({"status": "error", "messages": errors},status=400)
 
-class StudentUpdateView(UpdateView):
-    model = Student
+class StudentUpdateView(BaseStudentView,UpdateView):
+
     template_name = "students/student_form.html"
-    form_class = StudentForm
+
     
     def form_valid(self, form):
         # 通过form.save获取学生对象实例但不提交(commit=False):
@@ -104,9 +114,8 @@ class StudentUpdateView(UpdateView):
 
 
 
-class StudentDeleteView(DeleteView):
-    success_url = reverse_lazy('student_list')
-    model = Student
+class StudentDeleteView(BaseStudentView,DeleteView):
+
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         try:
@@ -115,9 +124,7 @@ class StudentDeleteView(DeleteView):
         except Exception as e:
             return JsonResponse({"status": "error", "messages": "删除失败" + str(e)}, status=500)
         
-class StudentBulkDeleteView(DeleteView):
-    model = Student
-    success_url = reverse_lazy('student_list')
+class StudentBulkDeleteView(BaseStudentView,DeleteView):
     
     # 处理POST请求:
     def post(self, request, *args, **kwargs):
@@ -136,6 +143,7 @@ class StudentBulkDeleteView(DeleteView):
         
         
 def upload_student(request):
+    
     # 上传学生信息excel
     # 仅处理POST请求:
     if request.method == "POST":

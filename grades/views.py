@@ -6,11 +6,11 @@ from .models import Grade
 from django.db.models import Q
 from django.urls import reverse_lazy
 from .forms import GradeForm
-
+from utils.permissions import RoleRequiredMixin
 # Create your views here.
 
 
-class GradeListView(ListView):
+class GradeListView(RoleRequiredMixin, ListView):
     #设置视图访问的模板
     model = Grade
 
@@ -38,21 +38,21 @@ class GradeListView(ListView):
         return queryset
     
 
-class GradeCreateView(CreateView):
+class GradeCreateView(RoleRequiredMixin, CreateView):
     mode = Grade
     template_name = 'grades/grade_form.html'
     form_class = GradeForm
     success_url = reverse_lazy('grades_list')
 
 
-class GradeUpdateView(UpdateView):
+class GradeUpdateView(RoleRequiredMixin, UpdateView):
     model = Grade
     template_name = 'grades/grade_form.html'
     form_class = GradeForm
     success_url = reverse_lazy('grades_list')
 
 
-class GradeDeleteView(DeleteView):
+class GradeDeleteView(RoleRequiredMixin, DeleteView):
     model = Grade
     template_name = 'grades/grade_del.html'
     

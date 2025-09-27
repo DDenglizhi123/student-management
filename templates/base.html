@@ -35,30 +35,30 @@
         <div class="content">
           <ul>
             {% if request.session.user_role == 'admin' %}
-            <li class="active">
-              <span class="iconfont icon-fangzi"></span>
-              <a href="/grades/" class="nav-link">班级管理</a>
-            </li>
-            <li class="active">
-              <span class="iconfont icon-kapian"></span>
-              <a href="/teachers/">老师管理</a>
-            </li>
+              <li class="active">
+                <span class="iconfont icon-fangzi"></span>
+                <a href="/grades/" class="nav-link">班级管理</a>
+              </li>
+              <li class="active">
+                <span class="iconfont icon-kapian"></span>
+                <a href="/teachers/">老师管理</a>
+              </li>
             {% endif %}
             {% if request.session.user_role == 'admin' or request.session.user_role == 'teacher'%}
-            <li>
-              <span class="iconfont icon-ren"></span>
-              <a href="/students/">学生管理</a>
-            </li>
-            <li>
-              <span class="iconfont icon-shuben"></span>
-              <a href="/scores/">成绩管理</a>
-            </li>
+              <li>
+                <span class="iconfont icon-ren"></span>
+                <a href="/students/">学生管理</a>
+              </li>
+              <li>
+                <span class="iconfont icon-shuben"></span>
+                <a href="/scores/">成绩管理</a>
+              </li>
             {% endif %}
             {% if request.session.user_role == 'student'%}
-            <li>
-              <span class="iconfont icon-shuben"></span>
-              <a href="{% url 'my_scores' %}">查看成绩</a>
-            </li>
+              <li>
+                <span class="iconfont icon-shuben"></span>
+                <a href="{% url 'my_scores' %}">查看成绩</a>
+              </li>
             {% endif%}
             <li>
               <span class="iconfont icon-bianji"></span>

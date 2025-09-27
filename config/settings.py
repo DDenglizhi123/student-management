@@ -82,7 +82,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "student_management",
         "USER": "root",
-        "PASSWORD": "denglizhi",
+        "PASSWORD": "denglizhi123",
         "HOST": "localhost",
     }
 }
@@ -129,3 +129,6 @@ STATICFILES_DIRS = ["static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 X_FRAME_OPTIONS = "SAMEORIGIN"  # 同源可访问
+
+# 登录后跳转的页面
+LOGIN_REDIRECT_URL = "/login/"
