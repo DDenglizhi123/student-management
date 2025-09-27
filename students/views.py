@@ -17,7 +17,7 @@ from .forms import StudentForm
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
-from utils.permissions import RoleRequiredMixin
+from utils.permissions import RoleRequiredMixin, role_required
 
 
 # Create your views here.
@@ -57,7 +57,6 @@ class StudentListView(BaseStudentView,ListView):
                 Q(student_name__icontains=keyword) | Q(student_number=keyword)
             )
         return queryset
-    
 
 class StudentCreateView(BaseStudentView,CreateView):
     
@@ -112,8 +111,6 @@ class StudentUpdateView(BaseStudentView,UpdateView):
         student.save()
         return JsonResponse({"status": "success", "messages": "操作成功"}, status=200)
 
-
-
 class StudentDeleteView(BaseStudentView,DeleteView):
 
     def delete(self, request, *args, **kwargs):
@@ -123,7 +120,7 @@ class StudentDeleteView(BaseStudentView,DeleteView):
             return JsonResponse({"status": "success", "messages": "删除成功"}, status=200)
         except Exception as e:
             return JsonResponse({"status": "error", "messages": "删除失败" + str(e)}, status=500)
-        
+
 class StudentBulkDeleteView(BaseStudentView,DeleteView):
     
     # 处理POST请求:
@@ -141,7 +138,7 @@ class StudentBulkDeleteView(BaseStudentView,DeleteView):
         except Exception as e:
             return JsonResponse({"status": "error", "messages": "批量删除失败" + str(e)}, status=500)
         
-        
+@role_required('admin','teacher')
 def upload_student(request):
     
     # 上传学生信息excel
@@ -250,7 +247,7 @@ def upload_student(request):
                     'messages':'上传成功'
                 },status=200)
     
-    
+@role_required('admin','teacher')
 def export_excel(request):
     if request.method == "POST":
         data = json.loads(request.body)
